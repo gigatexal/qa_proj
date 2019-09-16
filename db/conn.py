@@ -13,15 +13,15 @@ def connect(db_url=DB_URI):
         print(e)
 
 @contextmanager
-def transaction(use_transactions=True, readonly=False, isolation_level=psycopg2.extensions.ISOLATION_LEVEL_DEFAULT):
+def transaction(auto_commit=False, readonly=False, isolation_level=psycopg2.extensions.ISOLATION_LEVEL_DEFAULT):
     try:
         conn = connect()
-        conn.set_session(isolation_level=isolation_level, readonly=readonly, autocommit=use_transactions)
+        conn.set_session(isolation_level=isolation_level, readonly=readonly, autocommit=auto_commit)
         yield conn
         conn.commit()
     except Exception as e:
         conn.rollback()
-        # add loggin
+        # add logging
         raise e
     finally:
         conn.close()

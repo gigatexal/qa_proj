@@ -16,7 +16,8 @@ VALUES
            "create_project": "True", 
            "create_test": "True",
            "view_test_results": "True", 
-           "run_test": "True"
+           "run_test": "True",
+           "can_create_users":"True"
         }'
 ),
 (
@@ -25,7 +26,8 @@ VALUES
            "create_project": "True", 
            "create_test": "False", 
            "view_test_results": "False", 
-           "run_test": "False"
+           "run_test": "False",
+           "can_create_users":"False"
         }'
 ),
 (
@@ -34,7 +36,8 @@ VALUES
            "create_project": "False", 
            "create_test": "True", 
            "view_test_results": "True", 
-           "run_test": "False"
+           "run_test": "False",
+           "can_create_users": "False"
         }'
 ),
 (
@@ -43,7 +46,8 @@ VALUES
            "create_project": "False", 
            "create_test": "False", 
            "view_test_results": "False", 
-           "run_test": "True"
+           "run_test": "True",
+           "can_create_users": "False"
         }'
 );
 -- There can only be one admin role and one manager role and one ....
@@ -79,12 +83,24 @@ CREATE TABLE "tests" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     project_id INTEGER NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    result VARCHAR(9) NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX ix_tests_name_project_id_result ON "tests" (name, project_id, result);
-CREATE INDEX ix_tests_name_result ON "tests" (name, result);
+CREATE UNIQUE uq_tests_name ON "tests" (name);
+CREATE INDEX ix_tests_name_project_id ON "tests" (name, project_id);
+CREATE INDEX ix_tests_project_id_id ON "tests" (project_id, id);
 
 ALTER TABLE "tests" ADD CONSTRAINT fk_tests_project_id_id_projects FOREIGN KEY (project_id) REFERENCES "projects" (id) ON DELETE CASCADE;
+
+CREATE TABLE "test_results" (
+    id SERIAL PRIMARY KEY,
+    test_id INTEGER NOT NULL,
+    executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    result VARCHAR(9) NOT NULL DEFAULT 'Runnable'
+);
+
+CREATE INDEX ix_test_results_test_id_result ON "test_results" (test_id, result);
+
+-- Keep the test results even if a test might get deleted -- keep it a manual process
+ALTER TABLE "test_results" ADD CONSTRAINT fk_test_results_test_id_id_tests FOREIGN KEY (test_id) REFERENCES "tests" (id);
 /****** END TEST TABLES ****/
