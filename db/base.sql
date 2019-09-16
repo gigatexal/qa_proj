@@ -86,7 +86,7 @@ CREATE TABLE "tests" (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE uq_tests_name ON "tests" (name);
+CREATE UNIQUE INDEX uq_tests_name ON "tests" (name);
 CREATE INDEX ix_tests_name_project_id ON "tests" (name, project_id);
 CREATE INDEX ix_tests_project_id_id ON "tests" (project_id, id);
 
